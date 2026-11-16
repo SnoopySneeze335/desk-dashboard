@@ -1,0 +1,10 @@
+# Development / CI dependencies (pinned). All MIT, BSD or Apache-2.0.
+-r requirements.txt
+pytest==8.3.5
+pytest-asyncio==0.26.0
+pytest-aiohttp==1.1.0
+pytest-socket==0.7.0
+aioresponses==0.7.8
+ruff==0.11.8
+mypy==1.15.0
+types-PyYAML==6.0.12.20250402

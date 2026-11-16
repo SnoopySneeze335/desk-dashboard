@@ -1,0 +1,41 @@
+{
+  "errors": [],
+  "accounts": [
+    {
+      "id": "ACT-0001",
+      "name": "Fake Brokerage",
+      "currency": "USD",
+      "balance": "25000.00",
+      "balance-date": 1794603600,
+      "holdings": [
+        {"id": "H-0001", "created": 1777600000, "currency": "USD", "cost_basis": "10000.00",
+         "description": "Example 500 Index Fund Admiral Shares", "market_value": "12000.00",
+         "purchase_price": "500.00", "shares": "20.000", "symbol": "VFIAX"},
+        {"id": "H-0002", "created": 1777600000, "currency": "USD", "cost_basis": "900.00",
+         "description": "Example Corp", "market_value": "1000.00",
+         "purchase_price": "90.00", "shares": "10", "symbol": "FAKE"},
+        {"id": "H-0003", "created": 1777600000, "currency": "USD", "cost_basis": "500.00",
+         "description": "Example Money Market", "market_value": "500.00",
+         "purchase_price": "1.00", "shares": "500", "symbol": "SWVXX"},
+        {"id": "H-0004", "created": 1777600000, "currency": "USD", "cost_basis": "300.00",
+         "description": "Mystery Fund", "market_value": "330.00",
+         "purchase_price": "30.00", "shares": "10", "symbol": "ZZZZX"}
+      ]
+    },
+    {
+      "id": "ACT-0002",
+      "name": "Fake Checking",
+      "currency": "USD",
+      "balance": "1234.56",
+      "balance-date": 1794603600
+    },
+    {
+      "id": "ACT-0003",
+      "name": "Fake IRA",
+      "currency": "USD",
+      "balance": "5000.00",
+      "balance-date": 1794603600,
+      "holdings": []
+    }
+  ]
+}
