@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Default mutual fund -> ETF proxy map.
+#
+# Only pairs that are share classes of the SAME fund belong here
+# (Vanguard Admiral Shares and their ETF Shares). Add a pair only when
+# you're sure it's the same portfolio. Anything else goes in your own
+# FUND_PROXIES_FILE, marked approximate:
+#
+#   SOMEFUND: { proxy: VOO, approximate: true }
+#
+# International funds (VTIAX, VTMGX, VEMAX): the ETF trades live while the
+# mutual fund's official NAV uses fair-value pricing, so a single day's
+# estimate can differ noticeably from the official change. It tends to even
+# out over several days.
+
+VFIAX: VOO    # 500 Index
+VTSAX: VTI    # Total Stock Market Index
+VTIAX: VXUS   # Total International Stock Index
+VBTLX: BND    # Total Bond Market Index
+VIGAX: VUG    # Growth Index
+VVIAX: VTV    # Value Index
+VSMAX: VB     # Small-Cap Index
+VSIAX: VBR    # Small-Cap Value Index
+VTMGX: VEA    # Developed Markets Index
+VEMAX: VWO    # Emerging Markets Stock Index
+VIMAX: VO     # Mid-Cap Index
+VGSLX: VNQ    # Real Estate Index

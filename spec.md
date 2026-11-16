@@ -80,6 +80,7 @@ Languages and frameworks are open. Record the choices in `README.md` and the Com
 - **Schedule:** fetch at each time in `SIMPLEFIN_FETCH_TIMES` (default `06:00,20:00`, America/New_York). At startup, fetch only if the cache is missing or older than 24 hours.
 - **Quota guard:** a hard cap of `SIMPLEFIN_MAX_REQUESTS_PER_DAY` (default 4) per rolling 24 hours, persisted in `/data` so restarts can't exceed it. Nothing may fetch from SimpleFIN on page load, on a client request, or in tests.
 - **Account filter:** `SIMPLEFIN_ACCOUNTS` takes comma-separated account IDs or case-insensitive name substrings. Default: every account that has holdings.
+  - With the default, accounts without holdings (checking, credit cards) are simply not part of the portfolio and don't make it `partial`. The `partial` rule above applies to accounts selected explicitly through `SIMPLEFIN_ACCOUNTS`.
 - **Cache:** the last good parsed holdings, each account's `balance-date`, and the fetch time are saved in `/data`.
 
 ### 4.2 Finnhub (quotes)
@@ -95,7 +96,8 @@ Languages and frameworks are open. Record the choices in `README.md` and the Com
 - **Bad responses:** an invalid or unsupported symbol can come back with `c: 0` or null fields. Treat that as unpriceable.
 - **Free tier:** 60 calls/minute; US-listed stocks and ETFs only, no mutual funds. Budget at most 50 calls/minute.
 - **Symbols quoted:** every stock/ETF holding plus every proxy ETF for a held fund, deduplicated.
-- **Schedule:** every `QUOTE_INTERVAL_SECONDS` (default 60) during the regular session, 09:30–16:00 America/New_York, honoring NYSE holidays and early closes. Also once about 5 minutes after the close, and once at startup. No polling otherwise.
+- **Schedule:** every `QUOTE_INTERVAL_SECONDS` (default 60) during the regular session, 09:30–16:00 America/New_York, honoring NYSE holidays and early closes. Also once about 5 minutes after the close, once at startup, and once after each successful SimpleFIN fetch (so new symbols get priced). No polling otherwise.
+- **Failures:** a symbol whose request fails keeps its previous quote. Quote staleness (§8) is measured from the last successful poll, not from `t`, because `t` lags for thinly traded symbols.
 
 ### 4.3 Server metrics
 
@@ -119,7 +121,7 @@ Each included holding falls into one class:
 | --- | --- | --- |
 | Stock / ETF | Has a valid Finnhub quote for its own symbol | Its own quote |
 | Fund with proxy | Symbol is in the fund-proxy map | The proxy ETF's quote |
-| Cash-like | In `CASH_SYMBOLS`, has no symbol, or `market_value / shares` is within 0.5% of 1.00 | Zero change |
+| Cash-like | In `CASH_SYMBOLS`, has no symbol, or Finnhub can't price it and `market_value / shares` is within 0.5% of 1.00 | Zero change |
 | Pending | None of the above, or its proxy quote is unavailable | Left out, but counted |
 
 For each holding, Δ is its day change and $B$ its previous-close value (the base):
@@ -138,6 +140,8 @@ Here $q$ is shares from SimpleFIN, and $d$, $dp$ and $pc$ come from Finnhub.
 - **Cash-like:** Δ = 0 and $B$ = `market_value`. Cash counts in the denominator.
 - **Pending:** left out of both the change and the base. Counted in `positions.pending` and makes the status `partial`.
 - **Quotes from an older session** than the current one (for example, one symbol's quote failed today) are treated as pending.
+- **Order of checks:** cash symbol or no symbol → fund proxy → own quote → price ≈ 1.00 → pending. The price test runs only after Finnhub has answered for the symbol, so a real stock trading near $1 is still priced from its quote.
+- **Non-USD holdings** are pending.
 - **Precision:** use decimal arithmetic. Round dollars to cents and percent to 2 decimals only in the response.
 
 ## 6. Fund proxy map
@@ -186,6 +190,8 @@ All timestamps are ISO 8601 in UTC.
 ```
 
 - **`status` values:** `ok`, `partial`, `stale`, `error` or `unconfigured`. A section whose source isn't configured is `unconfigured` and has null values.
+  - With no data yet: `stale` until the first attempt finishes, `error` once an attempt has failed (including a SimpleFIN fetch blocked by the quota).
+  - Precedence: `stale` over `partial` over `ok`.
 - **Hiding dollars:** `day_change` is null when `HIDE_DOLLAR_AMOUNTS=true`.
 - **Stale thresholds:**
   - Quotes: more than 5 minutes old while the market is open.
@@ -224,10 +230,12 @@ Every secret can also be read from a file via a `<NAME>_FILE` variant (for Docke
 | `CPU_SMOOTHING_SECONDS` | `30` | CPU rolling-mean window |
 | `SERVER_DISPLAY_NAME` | `Server` | Label on the server view |
 | `HIDE_DOLLAR_AMOUNTS` | `false` | Omit dollar change from the API |
-| `DEMO_MODE` | `false` | Serve synthetic data; no keys needed |
+| `DEMO_MODE` | `false` | Serve synthetic data; no keys needed. If `DASHBOARD_TOKENS` is unset, the token is `demo` |
 | `DATA_DIR` | `/data` | Cache and quota state |
 | `PORT` | `8080` | HTTP listen port |
 | `LOG_LEVEL` | `info` | Log verbosity |
+| `WEB_DIR` | bundled `web/` | Advanced: static page directory |
+| `DEFAULT_FUND_PROXIES_FILE` | bundled `config/fund-proxies.yaml` | Advanced: replaces the default map |
 
 ## 10. Web page
 
@@ -284,6 +292,8 @@ Note in the doc: Windows starts screensavers with a hard cut, and the page's fad
   - Plain HTTP only for an explicit `http://` LAN URL.
   - HTTP timeout of 5 s or less.
 - **Behavior:** the same as the web page — same JSON, views, rotation, tap to switch, stale badge and percent-only option.
+  - Differences: the as-of time is shown as an age ("as of 3m ago"), computed from the response's own timestamps, so the board needs no NTP or time zone. The view switch is a quick backlight dip instead of a crossfade. There is no burn-in shift, since LCDs don't burn in.
+  - View, rotation interval and percent-only are set during provisioning.
 - **Backlight:** auto-dim from the light sensor, clamped between a minimum and maximum.
 - **Robustness:**
   - Reconnect Wi-Fi with backoff.

@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Secret scan config: gitleaks defaults plus allowlists for documented placeholders.
+title = "desk-dashboard gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders used in examples and fake test fixtures"
+regexTarget = "match"
+regexes = [
+  '''YOUR_[A-Z_]+''',
+  '''Bearer ci-token''',
+  '''FINNHUB_API_KEY=\s*QUOTE_INTERVAL_SECONDS=60''',
+]

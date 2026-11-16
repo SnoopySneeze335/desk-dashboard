@@ -1,0 +1,20 @@
+{
+  "name": "desk-dashboard-web",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "description": "Dev tooling only: the page itself has no build step or runtime dependencies.",
+  "scripts": {
+    "lint": "eslint assets",
+    "format": "prettier --write assets index.html",
+    "format:check": "prettier --check assets index.html",
+    "typecheck": "tsc -p jsconfig.json",
+    "check": "npm run lint && npm run format:check && npm run typecheck"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.28.0",
+    "eslint": "9.28.0",
+    "globals": "16.2.0",
+    "prettier": "3.5.3",
+    "typescript": "5.8.3"
+  }
+}

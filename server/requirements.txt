@@ -1,0 +1,4 @@
+# Runtime dependencies (pinned). Licenses: aiohttp Apache-2.0, PyYAML MIT, tzdata Apache-2.0.
+aiohttp==3.11.18
+PyYAML==6.0.2
+tzdata==2025.2
