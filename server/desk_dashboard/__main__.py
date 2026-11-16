@@ -6,9 +6,11 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import logging
+import os
 import signal
 import sys
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 import aiohttp
@@ -28,6 +30,17 @@ from .simplefin import HoldingsCache, SimpleFinPoller
 from .store import Store
 
 log = logging.getLogger("desk_dashboard")
+
+
+def _data_dir_writable(path: Path) -> bool:
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+        probe = path / ".write-test"
+        probe.write_text("ok")
+        probe.unlink()
+    except OSError:
+        return False
+    return True
 
 
 def utcnow() -> datetime:
@@ -80,7 +93,14 @@ async def serve(cfg: Config) -> None:
                 utcnow,
             )
         if cfg.simplefin_access_url:
-            cfg.data_dir.mkdir(parents=True, exist_ok=True)
+            if not _data_dir_writable(cfg.data_dir):
+                log.error(
+                    "DATA_DIR %s is not writable by uid %d; SimpleFIN fetches are disabled "
+                    "until it is fixed (chown the volume, then restart)",
+                    cfg.data_dir,
+                    os.getuid(),
+                )
+                store.holdings_error = "data dir not writable"
             poller = SimpleFinPoller(
                 cfg.simplefin_access_url,
                 cfg.simplefin_fetch_times,
@@ -95,7 +115,8 @@ async def serve(cfg: Config) -> None:
                 utcnow,
                 on_update=(quotes.trigger.set if quotes else lambda: None),
             )
-            spawn("simplefin", poller.run)
+            if store.holdings_error is None:
+                spawn("simplefin", poller.run)
         else:
             log.info("SIMPLEFIN_ACCESS_URL not set; portfolio is unconfigured")
         if quotes is not None:
