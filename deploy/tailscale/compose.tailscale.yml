@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Optional Tailscale sidecar: publishes the dashboard over HTTPS on your tailnet
+# with `tailscale serve`, at https://desk-dashboard.<your-tailnet>.ts.net/
+#
+# Use it as an override on top of your docker-compose.yml:
+#   docker compose -f docker-compose.yml -f deploy/tailscale/compose.tailscale.yml up -d
+#
+# Put TS_AUTHKEY=tskey-auth-... in .env (an auth key from the Tailscale admin
+# console; a tagged, non-expiring key is easiest for a server).
+
+services:
+  tailscale:
+    image: tailscale/tailscale:v1.84.0
+    container_name: desk-dashboard-tailscale
+    hostname: desk-dashboard          # becomes desk-dashboard.<tailnet>.ts.net
+    restart: unless-stopped
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY:?set TS_AUTHKEY in .env}
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_USERSPACE: "true"
+      TS_SERVE_CONFIG: /config/serve.json
+      # --- Optional: Tailscale Funnel (public internet) ---------------------
+      # WARNING: Funnel makes the dashboard reachable by ANYONE on the internet.
+      # The API still needs a bearer token, but the page and /healthz are
+      # public. Only enable it for a screen that can't join your tailnet, use
+      # long random tokens, and allow Funnel for this node in your tailnet ACLs.
+      # TS_SERVE_CONFIG: /config/serve-funnel.json
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+      - ./deploy/tailscale:/config:ro
+
+  dashboard:
+    # Share the sidecar's network namespace; tailscale serve proxies to 127.0.0.1:8080.
+    network_mode: service:tailscale
+    ports: !reset []
+    depends_on:
+      - tailscale
+
+volumes:
+  tailscale-state:
