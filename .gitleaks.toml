@@ -10,5 +10,6 @@ description = "Placeholders used in examples and fake test fixtures"
 regexTarget = "match"
 regexes = [
   '''YOUR_[A-Z_]+''',
+  '''Bearer ci-token''',
   '''FINNHUB_API_KEY=\s*QUOTE_INTERVAL_SECONDS=60''',
 ]
