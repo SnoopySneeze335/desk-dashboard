@@ -1,0 +1,59 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="referrer" content="no-referrer">
+  <title>Desk Dashboard</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <div id="stage">
+    <div id="canvas" aria-live="polite">
+      <section id="view-portfolio" class="view" aria-label="Portfolio">
+        <header class="top">
+          <span class="title">Portfolio</span>
+          <span class="right"><span class="badge" hidden>STALE</span><span class="market">—</span></span>
+        </header>
+        <div class="primary fit">—</div>
+        <div class="secondary">&nbsp;</div>
+        <footer class="bottom">
+          <span class="asof">&nbsp;</span>
+          <span class="pending"></span>
+        </footer>
+      </section>
+
+      <section id="view-server" class="view" aria-label="Server">
+        <header class="top">
+          <span class="title name">Server</span>
+          <span class="right"><span class="badge" hidden>STALE</span></span>
+        </header>
+        <div class="meters">
+          <div class="meter cpu">
+            <span class="label">CPU</span>
+            <span class="track"><span class="fill"></span></span>
+            <span class="value">—</span>
+          </div>
+          <div class="meter ram">
+            <span class="label">RAM</span>
+            <span class="track"><span class="fill"></span></span>
+            <span class="value">—</span>
+          </div>
+        </div>
+        <footer class="bottom">
+          <span class="asof">&nbsp;</span>
+          <span></span>
+        </footer>
+      </section>
+
+      <section id="view-message" class="view" aria-label="Message">
+        <div class="message"></div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>
