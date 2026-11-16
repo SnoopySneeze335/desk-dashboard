@@ -29,12 +29,41 @@ deploy/                      Unraid guide, Tailscale sidecar example
 
 ## Commands
 
-<!-- Fill this in once the stack is chosen, and keep it current. -->
+Stack: a Python 3.13 + aiohttp backend, a plain HTML/CSS/JS page with no build step, AutoHotkey v2, and PlatformIO (Arduino core 3.x via pioarduino) with LovyanGFX for the ESP32.
 
-- Backend: install · run (demo mode) · test · lint · format · type-check
-- Web: any build or check step
-- Docker: build · run demo
-- Firmware: build default · build demo
+Backend (run from `server/`):
+
+```bash
+python3 -m venv ../.venv && ../.venv/bin/pip install -r requirements-dev.txt   # install
+DEMO_MODE=true DATA_DIR=../data ../.venv/bin/python -m desk_dashboard         # run demo: http://localhost:8080/#token=demo
+../.venv/bin/pytest -q                                                         # test (real network is blocked)
+../.venv/bin/ruff check .                                                      # lint
+../.venv/bin/ruff format .                                                     # format
+../.venv/bin/mypy                                                              # type-check
+```
+
+Web (run from `web/`; dev tooling only, the page itself has no build step):
+
+```bash
+npm ci && npm run check      # ESLint + Prettier check + tsc --checkJs
+npm run format               # format
+```
+
+Docker (from the repo root):
+
+```bash
+docker build -t desk-dashboard .                                            # build
+docker run --rm -p 8080:8080 --read-only -e DEMO_MODE=true desk-dashboard   # run demo (token: demo)
+```
+
+Firmware (from `firmware/`):
+
+```bash
+pio run -e cyd                                           # build default (ILI9341)
+pio run -e cyd-demo                                      # build demo (no network)
+pio run -e cyd-st7789                                    # build the ST7789 variant
+clang-format --dry-run --Werror src/*.cpp include/*.h    # format check
+```
 
 ## How we work
 
