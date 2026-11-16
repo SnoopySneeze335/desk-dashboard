@@ -14,3 +14,9 @@ windows/
 deploy/
 server/tests/
 *.md
+web/node_modules
+web/package.json
+web/package-lock.json
+web/eslint.config.mjs
+web/jsconfig.json
+web/.prettierrc.json

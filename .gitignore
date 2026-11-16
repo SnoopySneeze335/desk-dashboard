@@ -29,3 +29,6 @@ windows/edge-kiosk-profile/
 # OS / editor
 .DS_Store
 Thumbs.db
+
+# Web dev tooling
+web/node_modules/

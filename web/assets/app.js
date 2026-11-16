@@ -33,7 +33,11 @@
       }
       params.delete("token");
       const rest = params.toString();
-      history.replaceState(null, "", location.pathname + location.search + (rest ? "#" + rest : ""));
+      history.replaceState(
+        null,
+        "",
+        location.pathname + location.search + (rest ? "#" + rest : ""),
+      );
     } else {
       try {
         token = localStorage.getItem(TOKEN_KEY);
