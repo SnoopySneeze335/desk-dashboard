@@ -5,6 +5,8 @@
 A self-hosted dashboard you can read at a glance. It shows your portfolio's day change and your home server's load on a browser tab, a Windows idle screen, or a cheap ESP32 display on your desk.
  
 > **Status:** early development. The [specification](spec.md) is complete and the first implementation is in progress. Setup steps below will firm up with the first release.
+
+**DISCLAIMER**: This code for this project was entirely generated with Claude Code. Use at your own risk, always keep backups. 
  
 ## What it shows
  
